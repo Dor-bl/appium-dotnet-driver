@@ -28,7 +28,7 @@ namespace OpenQA.Selenium.Appium.Android
         IStartsActivity,
         IHasNetworkConnection, INetworkActions, IHasClipboard, IHasPerformanceData,
         ISendsKeyEvents,
-        IPushesFiles, IHasSettings
+        IPushesFiles, IHasSettings,ListenToLogcatMessages
     {
         private static readonly string Platform = MobilePlatform.Android;
 
