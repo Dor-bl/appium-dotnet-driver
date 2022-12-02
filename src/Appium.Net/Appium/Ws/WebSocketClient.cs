@@ -1,6 +1,7 @@
-﻿using Autofac.Integration.Web;
-using System;
-
+﻿using System;
+using System.Net.WebSockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OpenQA.Selenium.Appium.Ws
 {
@@ -8,7 +9,7 @@ namespace OpenQA.Selenium.Appium.Ws
     {
         private Uri _endpoint;
 
-        private void setEndpoint(Uri endpoint)
+        private void SetEndpoint(Uri endpoint)
         {
             this._endpoint = endpoint;
         }
@@ -18,12 +19,19 @@ namespace OpenQA.Selenium.Appium.Ws
             return this._endpoint;
         }
 
-        public void connect(Uri endpoint)
+        public async Task Connect(Uri endpoint)
         {
             try
             {
-                ContainerProvider containerProvider = new ContainerProvider();
-                var container = containerProvider.ApplicationContainer;
+                using (var webSockerContainer = new ClientWebSocket())
+                {
+                    await webSockerContainer.ConnectAsync(endpoint, CancellationToken.None);
+                    SetEndpoint(endpoint);
+                }  
+            }
+            catch (Exception ex)
+            {
+                throw new WebDriverException(ex.ToString());
             }
         }
     }
