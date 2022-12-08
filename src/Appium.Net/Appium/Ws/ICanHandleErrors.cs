@@ -14,24 +14,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace OpenQA.Selenium.Appium.Ws
 {
-    public interface ICanHandleMessages<T>
+    public interface ICanHandleErrors
     {
-
-        /// <returns> The list of web socket message handlers.</returns>
-        IList<Action<T>> GetMessageHandlers();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns> The list of web socket error handlers.</returns>
+        IList<Action<Exception>> GetErrorHandlers();
 
         /// <summary>
-        /// Register a new message handler.
+        /// Register a new error handler.
         /// </summary>
-        /// <param name="handler"> handler a callback function, which accepts the received message as a parameter </param>
-        void AddMessageHandler(Action<T> handler);
+        /// <param name="handler"> handler a callback function, which accepts the received exception instance as a parameter</param>
+        void AddErrorHandler(Action<Exception> handler);
 
         /// <summary>
-        /// Removes existing message handlers.
+        /// Removes existing error handlers.
         /// </summary>
-        void RemoveMessageHandlers();
+        void RemoveErrorHandlers();
     }
 }

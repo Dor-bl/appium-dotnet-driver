@@ -170,6 +170,16 @@ namespace OpenQA.Selenium.Appium.Android
 
         #endregion
 
+        #region Logcat
+
+        public static void StartLogcatBroadcast(IExecuteMethod executeMethod) =>
+            executeMethod.Execute(DriverCommand.ExecuteScript, PrepareArguments(new[] { "script", "args" }, new[] { "mobile: startLogsBroadcast", "" }));
+
+        public static void StopLogcatBroadcast(IExecuteMethod executeMethod) =>
+            executeMethod.Execute(DriverCommand.ExecuteScript, PrepareArguments(new[] { "script", "mobile: stopLogsBroadcast", "args" }, new object[] { }));
+
+        #endregion
+
         public static bool IsLocked(IExecuteMethod executeMethod) =>
             (bool) executeMethod.Execute(AppiumDriverCommand.IsLocked).Value;
 

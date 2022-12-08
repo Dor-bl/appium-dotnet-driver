@@ -13,13 +13,30 @@
 //limitations under the License.
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OpenQA.Selenium.Appium.Interfaces
 {
-    internal interface IListenToLogcatMessages : IExecuteMethod
+    public interface IListenToLogcatMessages : IExecuteMethod
     {
-        StringWebSocketClient logcatClient = new StringWebSocketClient();
+       // StringWebSocketClient LogcatClient { get; set; }
+
+        void StartLogcatBroadcast();
+
+        void StartLogcatBroadcast(string host);
+
+        Task StartLogcatBroadcast(string host, int port);
+
+        void AddLogcatErrorsListener(Action<Exception> handler);
+
+        void AddLogcatConnectionListener(ThreadStart handler);
+
+        void AddLogcatDisconnectionListener(ThreadStart handler);
+
+        void RemoveAllLogcatListeners();
+
+        void StopLogcatBroadcast();
+
     }
 }

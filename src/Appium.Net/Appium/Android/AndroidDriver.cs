@@ -21,6 +21,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using OpenQA.Selenium.Appium.Android.Enums;
+using OpenQA.Selenium.Appium.Ws;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace OpenQA.Selenium.Appium.Android
 {
@@ -28,9 +31,11 @@ namespace OpenQA.Selenium.Appium.Android
         IStartsActivity,
         IHasNetworkConnection, INetworkActions, IHasClipboard, IHasPerformanceData,
         ISendsKeyEvents,
-        IPushesFiles, IHasSettings,ListenToLogcatMessages
+        IPushesFiles, IHasSettings, IListenToLogcatMessages
     {
         private static readonly string Platform = MobilePlatform.Android;
+
+        private static StringWebSocketClient logcatClient = new StringWebSocketClient();
 
         /// <summary>
         /// Initializes a new instance of the AndroidDriver class
@@ -254,6 +259,61 @@ namespace OpenQA.Selenium.Appium.Android
          * This method unlocks a device.
          */
         public void Unlock() => AndroidCommandExecutionHelper.Unlock(this);
+
+        #endregion
+
+        #region Logcat
+
+        public void StartLogcatBroadcast()
+        {
+            _ = StartLogcatBroadcast("localhost", AppiumServiceConstants.DefaultAppiumPort);
+        }
+
+        public void StartLogcatBroadcast(string host)
+        {
+            _ = StartLogcatBroadcast(host, AppiumServiceConstants.DefaultAppiumPort);
+        }
+
+        public async Task StartLogcatBroadcast(string host, int port) {
+
+            AndroidCommandExecutionHelper.StartLogcatBroadcast(this);
+            Uri endpointUri;
+            try
+            {
+                endpointUri = new Uri(string.Format("ws://{0}:{1}/ws/session/{2}/appium/device/logcat", host, port, SessionId));
+            }
+            catch(UriFormatException e)
+            {
+                throw new ArgumentException(e.ToString());
+            }
+            await logcatClient.Connect(endpointUri);
+
+        }
+        public void AddLogcatMessagesListener(Action<string> handler)
+        {
+            logcatClient.AddMessageHandler(handler);
+        }
+
+        public void AddLogcatErrorsListener(Action<Exception> handler)
+        {
+            logcatClient.AddErrorHandler(handler);
+        }
+
+        public void AddLogcatConnectionListener(ThreadStart handler)
+        {
+            logcatClient.AddConnectionHandler(handler);
+        }
+
+        public void AddLogcatDisconnectionListener(ThreadStart handler)
+        {
+            logcatClient.AddDisconnectionHandler(handler);
+        }
+
+        public void RemoveAllLogcatListeners()
+        {
+            logcatClient.RemoveAllHandlers();
+        }
+        public void StopLogcatBroadcast() => AndroidCommandExecutionHelper.StopLogcatBroadcast(this);
 
         #endregion
 

@@ -14,50 +14,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.WebSockets;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace OpenQA.Selenium.Appium.Ws
 {
-    public abstract class WebSocketClient
+    public abstract class WebSocketHandler : ICanHandleConnects, ICanHandleDisconnects, ICanHandleErrors, ICanHandleMessages<string>
     {
-        private Uri _endpoint;
-
-        private void SetEndpoint(Uri endpoint)
-        {
-            this._endpoint = endpoint;
-        }
-
-        public Uri GetEndpoint()
-        {
-            return this._endpoint;
-        }
-
-        /// <summary>
-        /// Connects web socket client.
-        /// </summary>
-        /// <param name="endpoint">endpoint The full address of an endpoint to connect to.
-        /// Usually starts with 'ws://'.</param>
-        /// <returns></returns>
-        /// <exception cref="WebDriverException"></exception>
-        public async Task Connect(Uri endpoint)
-        {
-            try
-            {
-                using (var webSockerContainer = new ClientWebSocket())
-                {
-                    await webSockerContainer.ConnectAsync(endpoint, CancellationToken.None);
-                    SetEndpoint(endpoint);
-                }  
-            }
-            catch (Exception ex)
-            {
-                throw new WebDriverException(ex.ToString());
-            }
-        }
-
-        #region WebSocket handlers implementation
 
         public abstract IList<ThreadStart> GetConnectionHandlers();
 
@@ -106,7 +68,5 @@ namespace OpenQA.Selenium.Appium.Ws
         {
             GetMessageHandlers().Clear();
         }
-
-        #endregion WebSocket handlers implementation
     }
 }

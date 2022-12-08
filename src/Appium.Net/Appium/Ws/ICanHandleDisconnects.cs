@@ -12,26 +12,26 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
-using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace OpenQA.Selenium.Appium.Ws
 {
-    public interface ICanHandleMessages<T>
+    public interface ICanHandleDisconnects
     {
 
-        /// <returns> The list of web socket message handlers.</returns>
-        IList<Action<T>> GetMessageHandlers();
+        /// <returns> The list of web socket disconnection handlers.</returns>
+        IList<ThreadStart> GetDisconnectionHandlers();
 
         /// <summary>
-        /// Register a new message handler.
+        /// Register a new web socket disconnect handler.
         /// </summary>
-        /// <param name="handler"> handler a callback function, which accepts the received message as a parameter </param>
-        void AddMessageHandler(Action<T> handler);
+        /// <param name="handler"> handler a callback function, which is going to be executed when web socket disconnect event arrives</param>
+        void AddDisconnectionHandler(ThreadStart handler);
 
         /// <summary>
-        /// Removes existing message handlers.
+        /// Removes existing disconnection handlers.
         /// </summary>
-        void RemoveMessageHandlers();
+        void RemoveDisconnectionHandlers();
     }
 }
