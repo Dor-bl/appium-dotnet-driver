@@ -266,7 +266,7 @@ namespace OpenQA.Selenium.Appium.Android
 
         public void StartLogcatBroadcast()
         {
-            _ = StartLogcatBroadcast("localhost", AppiumServiceConstants.DefaultAppiumPort);
+            _ = StartLogcatBroadcast("127.0.0.1", AppiumServiceConstants.DefaultAppiumPort);
         }
 
         public void StartLogcatBroadcast(string host)
