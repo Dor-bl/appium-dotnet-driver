@@ -45,9 +45,9 @@ namespace OpenQA.Selenium.Appium.Ws
         {
             try
             {
-                using (var webSockerContainer = new ClientWebSocket())
+                using (var webSocketContainer = new ClientWebSocket())
                 {
-                    await webSockerContainer.ConnectAsync(endpoint, CancellationToken.None);
+                    await webSocketContainer.ConnectAsync(endpoint, CancellationToken.None);
                     SetEndpoint(endpoint);
                 }  
             }
