@@ -1,15 +1,8 @@
 ﻿using Appium.Net.Integration.Tests.helpers;
 using NUnit.Framework;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Android;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Appium.Net.Integration.Tests.Android
 {
@@ -17,15 +10,16 @@ namespace Appium.Net.Integration.Tests.Android
     public class AndroidLogcatListenerTest
     {
         private AndroidDriver _driver;
-        private readonly Semaphore messageSemaphore = new Semaphore(0, 1);
-        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(15);
+        private readonly SemaphoreSlim messageSemaphore = new SemaphoreSlim(1);
+        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(20);
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
             var capabilities = Caps.GetAndroidUIAutomatorCaps(Apps.Get("androidApiDemos"));
+            capabilities.AddAdditionalAppiumOption("newCommandTimeout", 80);
             var serverUri = Env.ServerIsRemote() ? AppiumServers.RemoteServerUri : AppiumServers.LocalServiceUri;
-            _driver = new AndroidDriver(serverUri, capabilities, Env.ImplicitTimeoutSec);
+            _driver = new AndroidDriver(serverUri, capabilities, Env.InitTimeoutSec);
             _driver.Manage().Timeouts().ImplicitWait = Env.ImplicitTimeoutSec;
         }
 
@@ -48,12 +42,14 @@ namespace Appium.Net.Integration.Tests.Android
             _driver.AddLogcatErrorsListener(StackTrace => StackTrace.ToString());
             try
             {
-                _driver.StartLogcatBroadcast();
-                messageSemaphore.WaitOne();
+                _driver.StartLogcatBroadcast("127.0.0.1", 5037);
+                messageSemaphore.Wait();
                 _driver.BackgroundApp(TimeSpan.FromSeconds(1));
-               // Assert.True(_timeout.TotalMilliseconds, messageSemaphore.WaitOne(_timeout.Milliseconds));
-               // Assert.That(_timeout.TotalMilliseconds, messageSemaphore.WaitOne(_timeout.Milliseconds));
-                Assert.IsTrue(_timeout.TotalMilliseconds.Equals(messageSemaphore.WaitOne(_timeout.Milliseconds)),string.Format("Didn't recive any log message after %s timeout"));
+                _driver.LaunchApp();
+                // Assert.True(_timeout.TotalMilliseconds, messageSemaphore.WaitOne(_timeout.Milliseconds));
+                // Assert.That(_timeout.TotalMilliseconds, messageSemaphore.WaitOne(_timeout.Milliseconds));
+                Assert.IsTrue(messageSemaphore.Wait(_timeout),$"Didn't receive any log message after {_timeout:h\\:mm\\:ss} timeout");
+                //Assert.IsTrue(_timeout.TotalMilliseconds.Equals(messageSemaphore.Wait(_timeout.Milliseconds)),string.Format("Didn't recive any log message after %s timeout"));
             }
             catch (ThreadInterruptedException e)
             {

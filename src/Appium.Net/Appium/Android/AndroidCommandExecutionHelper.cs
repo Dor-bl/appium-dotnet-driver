@@ -172,8 +172,20 @@ namespace OpenQA.Selenium.Appium.Android
 
         #region Logcat
 
+        // public static void StartLogcatBroadcast(IExecuteMethod executeMethod) =>
+        //   executeMethod.Execute(DriverCommand.ExecuteScript, PrepareArguments(new[] { "script", "args" }, new[] { "mobile:startLogsBroadcast", "" }));
         public static void StartLogcatBroadcast(IExecuteMethod executeMethod) =>
-            executeMethod.Execute(DriverCommand.ExecuteScript, PrepareArguments(new[] { "script", "args" }, new[] { "mobile:startLogsBroadcast", "" }));
+           executeMethod.Execute(DriverCommand.ExecuteScript,
+           new Dictionary<string, object>
+            {
+                { "script", "mobile:startLogsBroadcast" },
+                { "args", new Dictionary<string, object>
+                    {
+                        { "type", "logcat" },
+                        { "buffer", "main" }
+                    }
+            }
+            });
 
         public static void StopLogcatBroadcast(IExecuteMethod executeMethod) =>
             executeMethod.Execute(DriverCommand.ExecuteScript, PrepareArguments(new[] { "script", "mobile:stopLogsBroadcast", "args" }, new object[] { }));
