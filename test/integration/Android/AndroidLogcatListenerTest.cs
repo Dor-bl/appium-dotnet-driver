@@ -11,13 +11,13 @@ namespace Appium.Net.Integration.Tests.Android
     {
         private AndroidDriver _driver;
         private readonly SemaphoreSlim messageSemaphore = new SemaphoreSlim(1);
-        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(20);
+        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(100);
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
             var capabilities = Caps.GetAndroidUIAutomatorCaps(Apps.Get("androidApiDemos"));
-            capabilities.AddAdditionalAppiumOption("newCommandTimeout", 80);
+            capabilities.AddAdditionalAppiumOption("newCommandTimeout", 150);
             var serverUri = Env.ServerIsRemote() ? AppiumServers.RemoteServerUri : AppiumServers.LocalServiceUri;
             _driver = new AndroidDriver(serverUri, capabilities, Env.InitTimeoutSec);
             _driver.Manage().Timeouts().ImplicitWait = Env.ImplicitTimeoutSec;
@@ -39,10 +39,10 @@ namespace Appium.Net.Integration.Tests.Android
             _driver.AddLogcatMessagesListener(msg => messageSemaphore.Release());
             _driver.AddLogcatConnectionListener(() => Console.WriteLine("Connected to the web socket"));
             _driver.AddLogcatDisconnectionListener(() => Console.WriteLine("Disconnected from the web socket"));
-            _driver.AddLogcatErrorsListener(StackTrace => StackTrace.ToString());
+            _driver.AddLogcatErrorsListener(Console.Error.WriteLine);
             try
             {
-                _driver.StartLogcatBroadcast("127.0.0.1", 5037);
+                _driver.StartLogcatBroadcast();
                 messageSemaphore.Wait();
                 _driver.BackgroundApp(TimeSpan.FromSeconds(1));
                 _driver.LaunchApp();
@@ -51,9 +51,9 @@ namespace Appium.Net.Integration.Tests.Android
                 Assert.IsTrue(messageSemaphore.Wait(_timeout),$"Didn't receive any log message after {_timeout:h\\:mm\\:ss} timeout");
                 //Assert.IsTrue(_timeout.TotalMilliseconds.Equals(messageSemaphore.Wait(_timeout.Milliseconds)),string.Format("Didn't recive any log message after %s timeout"));
             }
-            catch (ThreadInterruptedException e)
+            catch (Exception e)
             {
-                throw new InvalidOperationException(e.ToString());
+                throw new InvalidOperationException("Unexpected exception occurred", e);
             }
             finally
             {

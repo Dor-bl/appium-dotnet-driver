@@ -18,6 +18,7 @@ using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
+using System.Linq;
 
 namespace OpenQA.Selenium.Appium.Ws
 {
@@ -28,7 +29,7 @@ namespace OpenQA.Selenium.Appium.Ws
         private readonly IList<ThreadStart> connectHandlers = new SynchronizedCollection<ThreadStart>();
         private readonly IList<ThreadStart> disconnectHandlers = new SynchronizedCollection<ThreadStart>();
 
-        private volatile ClientWebSocket socket;
+        private ClientWebSocket socket;
 
         public new async Task Connect(Uri endpoint)
         {
@@ -56,11 +57,11 @@ namespace OpenQA.Selenium.Appium.Ws
         public void OnOpen()
         {
             this.socket = null;
-            foreach (ThreadStart ts in GetConnectionHandlers())
-            {
-                new Thread(ts).Start();
-            }
-           // GetConnectionHandlers().ForEach(ts => new Thread(new ThreadStart(ts)).Start());
+            //foreach (ThreadStart ts in GetConnectionHandlers())
+            //{
+            //    new Thread(ts).Start();
+            //}
+           GetConnectionHandlers().ToList().ForEach(ts => new Thread(ts).Start());
         }
 
 
@@ -117,7 +118,8 @@ namespace OpenQA.Selenium.Appium.Ws
         /// </summary>
         public void RemoveAllHandlers()
         {
-            RemoveMessageHandlers();
+            // RemoveMessageHandlers();
+            messagesHandlers.Clear();
             RemoveErrorHandlers();
             RemoveConnectionHandlers();
             RemoveDisconnectionHandlers();

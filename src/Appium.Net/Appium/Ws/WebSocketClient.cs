@@ -24,6 +24,7 @@ namespace OpenQA.Selenium.Appium.Ws
     {
         private Uri _endpoint;
 
+
         private void SetEndpoint(Uri endpoint)
         {
             this._endpoint = endpoint;

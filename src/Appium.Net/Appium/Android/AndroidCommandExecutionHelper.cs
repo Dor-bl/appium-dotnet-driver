@@ -91,7 +91,7 @@ namespace OpenQA.Selenium.Appium.Android
             var commandResponse = executeMethod.Execute(AppiumDriverCommand.GetConnectionType, null);
             if (commandResponse.Status == WebDriverResult.Success)
             {
-                return (ConnectionType) (long) commandResponse.Value;
+                return (ConnectionType)(long)commandResponse.Value;
             }
             else
             {
@@ -115,8 +115,8 @@ namespace OpenQA.Selenium.Appium.Android
 
         public static void GsmCall(IExecuteMethod executeMethod, string number, GsmCallActions gsmCallAction) =>
             executeMethod.Execute(AppiumDriverCommand.GsmCall,
-                PrepareArguments(new[] {"phoneNumber", "action"},
-                    new object[] {number, gsmCallAction.ToString().ToLowerInvariant()}));
+                PrepareArguments(new[] { "phoneNumber", "action" },
+                    new object[] { number, gsmCallAction.ToString().ToLowerInvariant() }));
 
         public static void SendSms(IExecuteMethod executeMethod, string number, string message) =>
             executeMethod.Execute(AppiumDriverCommand.SendSms,
@@ -138,7 +138,7 @@ namespace OpenQA.Selenium.Appium.Android
         public static string EndTestCoverage(IExecuteMethod executeMethod, string intent, string path) =>
             executeMethod.Execute(AppiumDriverCommand.EndTestCoverage,
                 new Dictionary<string, object>()
-                    {["intent"] = intent, ["path"] = path}).Value as string;
+                { ["intent"] = intent, ["path"] = path }).Value as string;
 
         #region Device Performance
 
@@ -147,13 +147,13 @@ namespace OpenQA.Selenium.Appium.Android
 
         public static object[] GetPerformanceData(IExecuteMethod executeMethod, string packageName,
             string dataType) => executeMethod.Execute(AppiumDriverCommand.GetPerformanceData,
-            PrepareArguments(new[] {"packageName", "dataType"},
-                new object[] {packageName, dataType})).Value as object[];
+            PrepareArguments(new[] { "packageName", "dataType" },
+                new object[] { packageName, dataType })).Value as object[];
 
         public static object[] GetPerformanceData(IExecuteMethod executeMethod, string packageName,
             string dataType, int dataReadTimeout) => executeMethod.Execute(AppiumDriverCommand.GetPerformanceData,
-            PrepareArguments(new[] {"packageName", "dataType", "dataReadTimeout"},
-                new object[] {packageName, dataType, dataReadTimeout})).Value as object[];
+            PrepareArguments(new[] { "packageName", "dataType", "dataReadTimeout" },
+                new object[] { packageName, dataType, dataReadTimeout })).Value as object[];
 
         #endregion
 
@@ -172,23 +172,12 @@ namespace OpenQA.Selenium.Appium.Android
 
         #region Logcat
 
-        // public static void StartLogcatBroadcast(IExecuteMethod executeMethod) =>
-        //   executeMethod.Execute(DriverCommand.ExecuteScript, PrepareArguments(new[] { "script", "args" }, new[] { "mobile:startLogsBroadcast", "" }));
         public static void StartLogcatBroadcast(IExecuteMethod executeMethod) =>
-           executeMethod.Execute(DriverCommand.ExecuteScript,
-           new Dictionary<string, object>
-            {
-                { "script", "mobile:startLogsBroadcast" },
-                { "args", new Dictionary<string, object>
-                    {
-                        { "type", "logcat" },
-                        { "buffer", "main" }
-                    }
-            }
-            });
+        
+            executeMethod.Execute(DriverCommand.ExecuteScript, new Dictionary<string, object>() { { "mobile: startLogsBroadcast", null } });
 
         public static void StopLogcatBroadcast(IExecuteMethod executeMethod) =>
-            executeMethod.Execute(DriverCommand.ExecuteScript, PrepareArguments(new[] { "script", "mobile:stopLogsBroadcast", "args" }, new object[] { }));
+            executeMethod.Execute(DriverCommand.ExecuteScript, PrepareArguments(new[] { "script", "mobile: stopLogsBroadcast", "args" }, new object[] { }));
 
         #endregion
 
