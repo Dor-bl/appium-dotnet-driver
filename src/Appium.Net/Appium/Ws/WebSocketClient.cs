@@ -44,13 +44,14 @@ namespace OpenQA.Selenium.Appium.Ws
         /// <exception cref="WebDriverException"></exception>
         public async Task Connect(Uri endpoint)
         {
+
             try
             {
-                using (var webSocketContainer = new ClientWebSocket())
+                var webSocketContainer = new ClientWebSocket();
                 {
                     await webSocketContainer.ConnectAsync(endpoint, CancellationToken.None);
                     SetEndpoint(endpoint);
-                }  
+                }
             }
             catch (Exception ex)
             {

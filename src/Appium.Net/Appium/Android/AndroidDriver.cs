@@ -276,13 +276,14 @@ namespace OpenQA.Selenium.Appium.Android
 
         public async Task StartLogcatBroadcast(string host, int port) {
 
-            ExecuteScript("mobile: startLogsBroadcast");
+            this.ExecuteScript("mobile: startLogsBroadcast");
            // AndroidCommandExecutionHelper.StartLogcatBroadcast(this);
             Uri endpointUri;
             try
             {
                 //endpointUri = new Uri(string.Format("ws://{0}:{1}/ws/session/{2}/appium/device/logcat", host, port, SessionId));
-                endpointUri = new Uri(string.Format("ws://{0}:8201/ws/session/{2}/appium/device/logcat", host, SessionId));
+                endpointUri = new Uri(string.Format("ws://localhost:{0}/ws/session/{1}/appium/device/logcat", port, SessionId));
+                // endpointUri = new Uri(string.Format("ws://{0}:8201/ws/session/{2}/appium/device/logcat", host, SessionId));
             }
             catch(UriFormatException e)
             {

@@ -3,6 +3,7 @@ using NUnit.Framework;
 using OpenQA.Selenium.Appium.Android;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Appium.Net.Integration.Tests.Android
 {
@@ -10,15 +11,17 @@ namespace Appium.Net.Integration.Tests.Android
     public class AndroidLogcatListenerTest
     {
         private AndroidDriver _driver;
+        private Uri serverUri;
         private readonly SemaphoreSlim messageSemaphore = new SemaphoreSlim(1);
-        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(100);
+        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(40);
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
             var capabilities = Caps.GetAndroidUIAutomatorCaps(Apps.Get("androidApiDemos"));
             capabilities.AddAdditionalAppiumOption("newCommandTimeout", 150);
-            var serverUri = Env.ServerIsRemote() ? AppiumServers.RemoteServerUri : AppiumServers.LocalServiceUri;
+
+            serverUri = new Uri("http://localhost:4723");
             _driver = new AndroidDriver(serverUri, capabilities, Env.InitTimeoutSec);
             _driver.Manage().Timeouts().ImplicitWait = Env.ImplicitTimeoutSec;
         }
@@ -34,7 +37,7 @@ namespace Appium.Net.Integration.Tests.Android
         }
 
         [Test]
-        public void VerifyLogcatListenerCanBeAssigned()
+        public async Task VerifyLogcatListenerCanBeAssigned()
         {
             _driver.AddLogcatMessagesListener(msg => messageSemaphore.Release());
             _driver.AddLogcatConnectionListener(() => Console.WriteLine("Connected to the web socket"));
@@ -42,7 +45,7 @@ namespace Appium.Net.Integration.Tests.Android
             _driver.AddLogcatErrorsListener(Console.Error.WriteLine);
             try
             {
-                _driver.StartLogcatBroadcast();
+                await _driver.StartLogcatBroadcast(serverUri.Host, serverUri.Port);
                 messageSemaphore.Wait();
                 _driver.BackgroundApp(TimeSpan.FromSeconds(1));
                 _driver.LaunchApp();

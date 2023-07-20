@@ -27,7 +27,7 @@ namespace OpenQA.Selenium.Appium.Ws
         /// Register a new message handler.
         /// </summary>
         /// <param name="handler"> handler a callback function, which accepts the received message as a parameter </param>
-        default void AddMessageHandler(Action<T> handler);
+        void AddMessageHandler(Action<T> handler);
 
         /// <summary>
         /// Removes existing message handlers.
