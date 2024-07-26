@@ -13,9 +13,13 @@
 //limitations under the License.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OpenQA.Selenium.Appium.Interfaces
 {
+    /// <summary>
+    /// Provides methods to execute commands on a remote server.
+    /// </summary>
     public interface IExecuteMethod
     {
         /// <summary>
@@ -31,5 +35,19 @@ namespace OpenQA.Selenium.Appium.Interfaces
         /// </summary>
         /// <param name="driverCommand">A remote command</param>
         Response Execute(string driverCommand);
+
+        /// <summary>
+        /// Execute a command as an asynchronous task on the remote server.
+        /// </summary>
+        /// <param name="commandName">The command you wish to execute</param>
+        /// <param name="parameters">Parameters needed for the command</param>
+        /// <returns>A task object representing the asynchronous operatio</returns>
+        Task<Response> ExecuteAsync(string commandName, Dictionary<string, object> parameters);
+
+        /// <summary>
+        /// Executes a command as an asynchronous task on the remote server.
+        /// </summary>
+        /// <param name="driverCommand">The command you wish to execute</param>
+        Task<Response> ExecuteAsync(string driverCommand);
     }
 }
