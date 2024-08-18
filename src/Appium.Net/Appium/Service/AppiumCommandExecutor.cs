@@ -24,9 +24,11 @@ namespace OpenQA.Selenium.Appium.Service
         private ICommandExecutor RealExecutor;
         private bool isDisposed;
         private const string IdempotencyHeader = "X-Idempotency-Key";
-        private AppiumClientConfig ClientConfig;
+        private readonly AppiumClientConfig ClientConfig;
+        private readonly Uri AppiumExecutorUrl;
 
-        private TimeSpan CommandTimeout;
+        private readonly TimeSpan CommandTimeout;
+        private readonly TimeSpan NewSessionCommandTimeout = TimeSpan.FromSeconds(600.0);
 
         private static ICommandExecutor CreateRealExecutor(Uri remoteAddress, TimeSpan commandTimeout)
         {
@@ -41,6 +43,7 @@ namespace OpenQA.Selenium.Appium.Service
         internal AppiumCommandExecutor(Uri url, TimeSpan timeForTheServerResponding, AppiumClientConfig clientConfig)
             : this(CreateRealExecutor(url, timeForTheServerResponding))
         {
+            AppiumExecutorUrl = url;
             CommandTimeout = timeForTheServerResponding;
             Service = null;
             ClientConfig = clientConfig;
@@ -49,14 +52,15 @@ namespace OpenQA.Selenium.Appium.Service
         internal AppiumCommandExecutor(AppiumLocalService service, TimeSpan timeForTheServerResponding, AppiumClientConfig clientConfig)
             : this(CreateRealExecutor(service.ServiceUrl, timeForTheServerResponding))
         {
-            CommandTimeout = timeForTheServerResponding;
             Service = service;
+            AppiumExecutorUrl = service.ServiceUrl;
+            CommandTimeout = timeForTheServerResponding;
             ClientConfig = clientConfig;
         }
 
         public Response Execute(Command commandToExecute)
        {
-           return Task.Run(() => ExecuteAsync(commandToExecute)).GetAwaiter().GetResult();
+            return Task.Run(() => ExecuteAsync(commandToExecute)).GetAwaiter().GetResult();
        }
 
         public async Task<Response> ExecuteAsync(Command commandToExecute)
@@ -95,6 +99,7 @@ namespace OpenQA.Selenium.Appium.Service
             if (command.Name == DriverCommand.NewSession)
             {
                 Service?.Start();
+                RealExecutor = new HttpCommandExecutor(AppiumExecutorUrl, NewSessionCommandTimeout);
                 RealExecutor = ModifyNewSessionHttpRequestHeader(RealExecutor);
                 return true;
             }
@@ -139,10 +144,10 @@ namespace OpenQA.Selenium.Appium.Service
         /// </summary>
         /// <param name="commandExecutor">The command executor to be modified.</param>
         /// <returns>The modified command executor with the updated HTTP request header.</returns>
-        private ICommandExecutor ModifyNewSessionHttpRequestHeader(ICommandExecutor commandExecutor)
+        private static ICommandExecutor ModifyNewSessionHttpRequestHeader(ICommandExecutor commandExecutor)
         {
             if (commandExecutor == null) throw new ArgumentNullException(nameof(commandExecutor));
-            var modifiedCommandExecutor = commandExecutor as HttpCommandExecutor;
+            HttpCommandExecutor modifiedCommandExecutor = commandExecutor as HttpCommandExecutor;
 
             modifiedCommandExecutor.SendingRemoteHttpRequest += (sender, args) =>
                     args.AddHeader(IdempotencyHeader, Guid.NewGuid().ToString());
@@ -161,16 +166,11 @@ namespace OpenQA.Selenium.Appium.Service
         {
             if (ClientConfig.DirectConnect == false)
             {
+                currentExecutor = new HttpCommandExecutor(AppiumExecutorUrl, CommandTimeout);
                 return currentExecutor;
             }
 
-            var newExecutor = GetNewExecutorWithDirectConnect(result);
-            if (newExecutor == null)
-            {
-                return currentExecutor;
-            }
-
-            return newExecutor;
+            return GetNewExecutorWithDirectConnect(result) ?? currentExecutor;
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace OpenQA.Selenium.Appium.Service
 
         public bool TryAddCommand(string commandName, CommandInfo info)
         {
-            return this.RealExecutor.TryAddCommand(commandName, info);
+            return RealExecutor.TryAddCommand(commandName, info);
         }
     }
 }
