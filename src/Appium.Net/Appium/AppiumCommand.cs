@@ -78,22 +78,17 @@ namespace OpenQA.Selenium.Appium
 
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.ShakeDevice,
                 "/session/{sessionId}/appium/device/shake"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.LockDevice,
-                "/session/{sessionId}/appium/device/lock"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.IsLocked,
-                "/session/{sessionId}/appium/device/is_locked"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.UnlockDevice,
-                "/session/{sessionId}/appium/device/unlock"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.PressKeyCode,
                 "/session/{sessionId}/appium/device/press_keycode"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.LongPressKeyCode,
                 "/session/{sessionId}/appium/device/long_press_keycode"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.Rotate,
-                "/session/{sessionId}/appium/device/rotate"),
             new AppiumCommand(HttpCommandInfo.GetCommand, AppiumDriverCommand.GetCurrentActivity,
                 "/session/{sessionId}/appium/device/current_activity"),
             new AppiumCommand(HttpCommandInfo.GetCommand, AppiumDriverCommand.GetCurrentPackage,
                 "/session/{sessionId}/appium/device/current_package"),
+
+            #region Applications Management
+
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.InstallApp,
                 "/session/{sessionId}/appium/device/install_app"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.RemoveApp,
@@ -104,6 +99,11 @@ namespace OpenQA.Selenium.Appium
                 "/session/{sessionId}/appium/device/terminate_app"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.IsAppInstalled,
                 "/session/{sessionId}/appium/device/app_installed"),
+            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.GetAppState,
+                "/session/{sessionId}/appium/device/app_state"),
+
+	        #endregion
+
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.PushFile,
                 "/session/{sessionId}/appium/device/push_file"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.PullFile,
@@ -114,20 +114,23 @@ namespace OpenQA.Selenium.Appium
                 "/session/{sessionId}/appium/getPerformanceData"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.GetPerformanceDataTypes,
                 "/session/{sessionId}/appium/performanceData/types"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.LaunchApp,
-                "/session/{sessionId}/appium/app/launch"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.CloseApp,
+
+            #region (WinAppDriver) legacy app management
+
+            new AppiumCommand(HttpCommandInfo.PostCommand, WindowsDriverCommand.CloseApp,
                 "/session/{sessionId}/appium/app/close"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.ResetApp,
-                "/session/{sessionId}/appium/app/reset"),
+
+            new AppiumCommand(HttpCommandInfo.PostCommand, WindowsDriverCommand.LaunchApp,
+                "/session/{sessionId}/appium/app/launch"),
+
+            #endregion (WinAppDriver) legacy app management
+
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.BackgroundApp,
                 "/session/{sessionId}/appium/app/background"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.EndTestCoverage,
                 "/session/{sessionId}/appium/app/end_test_coverage"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.GetAppStrings,
                 "/session/{sessionId}/appium/app/strings"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.GetAppState,
-                "/session/{sessionId}/appium/device/app_state"),
             new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.HideKeyboard,
                 "/session/{sessionId}/appium/device/hide_keyboard"),
             new AppiumCommand(HttpCommandInfo.GetCommand, AppiumDriverCommand.IsKeyboardShown,
@@ -144,18 +147,7 @@ namespace OpenQA.Selenium.Appium
                 "/session/{sessionId}/appium/device/finger_print"),
 
             #endregion Driver Commands
-
             
-            
-            #region (Deprecated) Touch Commands 
-            // TODO: Remove this region once we deprecate the touch actions
-            // Please use the W3C Actions instead.
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.PerformMultiAction,
-                "/session/{sessionId}/touch/multi/perform"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.PerformTouchAction,
-                "/session/{sessionId}/touch/perform"),
-
-            #endregion (Deprecated) Touch Commands
 
             // Enable W3C Actions on AppiumWebDriver
 
@@ -194,15 +186,6 @@ namespace OpenQA.Selenium.Appium
                 "/session/{sessionId}/ime/deactivate"),
 
             #endregion Input Method (IME)
-
-            #region Input value
-
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.ReplaceValue,
-                "/session/{sessionId}/appium/element/{id}/replace_value"),
-            new AppiumCommand(HttpCommandInfo.PostCommand, AppiumDriverCommand.SetValue,
-                "/session/{sessionId}/appium/element/{id}/value"),
-
-            #endregion Input value
 
             #region SeassionData
 
@@ -267,11 +250,10 @@ namespace OpenQA.Selenium.Appium
 
         /// <summary>
         /// Constructor
-        /// </summary>
         /// <param name="commandType">type of command (get/post/delete)</param>
         /// <param name="command">Command</param>
         /// <param name="apiEndpoint">api endpoint</param>
-        /// <summary>
+        /// </summary>
         public AppiumCommand(string commandType, string command, string apiEndpoint)
         {
             CommandType = commandType;

@@ -40,16 +40,11 @@ namespace Appium.Net.Integration.Tests.IOS
         public void FindByAccessibilityIdTest()
         {
             By byAccessibilityId = new ByAccessibilityId("ComputeSumButton");
-            Assert.AreNotEqual(_driver.FindElement(byAccessibilityId).Text, null);
-            Assert.GreaterOrEqual(_driver.FindElements(byAccessibilityId).Count, 1);
-        }
-
-        [Test]
-        public void FindByByIosUiAutomationTest()
-        {
-            By byIosUiAutomation = new ByIosUIAutomation(".elements().withName(\"Answer\")");
-            Assert.IsNotNull(_driver.FindElement(byIosUiAutomation).Text);
-            Assert.GreaterOrEqual(_driver.FindElements(byIosUiAutomation).Count, 1);
+            Assert.Multiple(() =>
+            {
+                Assert.That(string.IsNullOrEmpty(_driver.FindElement(byAccessibilityId).Text), Is.False);
+                Assert.That(_driver.FindElements(byAccessibilityId), Is.Not.Empty);
+            });
         }
     }
 }

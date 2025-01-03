@@ -1,7 +1,7 @@
 ﻿using Appium.Net.Integration.Tests.helpers;
 using NUnit.Framework;
-using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
+using OpenQA.Selenium.Appium.Android.Enums;
 
 namespace Appium.Net.Integration.Tests.Android
 {
@@ -9,7 +9,8 @@ namespace Appium.Net.Integration.Tests.Android
     public class ActivityTest
     {
         private AndroidDriver _driver;
-        private const string ContactsActivity = ".activities.PeopleActivity";
+        private const string ContactsActivity = "com.android.contacts.activities.PeopleActivity";
+        private const string AppId = "io.appium.android.apis";
 
         [OneTimeSetUp]
         public void BeforeAll()
@@ -21,73 +22,73 @@ namespace Appium.Net.Integration.Tests.Android
             var serverUri = Env.ServerIsRemote() ? AppiumServers.RemoteServerUri : AppiumServers.LocalServiceUri;
             _driver = new AndroidDriver(serverUri, capabilities, Env.InitTimeoutSec);
             _driver.Manage().Timeouts().ImplicitWait = Env.ImplicitTimeoutSec;
-            _driver.CloseApp();
+            _driver.TerminateApp(AppId);
         }
 
         [SetUp]
         public void SetUp()
         {
-            _driver?.LaunchApp();
+            _driver?.ActivateApp(AppId);
         }
 
         [TearDown]
-        public void TearDowwn()
+        public void TearDown()
         {
-            _driver?.CloseApp();
+            _driver.TerminateApp(AppId);
         }
 
         [Test]
         public void StartActivityInThisAppTestCase()
         {
-            _driver.StartActivity("io.appium.android.apis", ".ApiDemos");
+            _driver.StartActivity(AppId, ".ApiDemos");
 
-            Assert.AreEqual(_driver.CurrentActivity, ".ApiDemos");
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(".ApiDemos"));
 
-            _driver.StartActivity("io.appium.android.apis", ".accessibility.AccessibilityNodeProviderActivity");
+            _driver.StartActivity(AppId, ".accessibility.AccessibilityNodeProviderActivity");
 
-            Assert.AreEqual(_driver.CurrentActivity, ".accessibility.AccessibilityNodeProviderActivity");
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(".accessibility.AccessibilityNodeProviderActivity"));
         }
 
         [Test]
         public void StartActivityWithWaitingAppTestCase()
         {
-            _driver.StartActivity("io.appium.android.apis", ".ApiDemos", "io.appium.android.apis", ".ApiDemos");
+            _driver.StartActivity(AppId, ".ApiDemos", AppId, ".ApiDemos");
 
-            Assert.AreEqual(_driver.CurrentActivity, ".ApiDemos");
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(".ApiDemos"));
 
-            _driver.StartActivity("io.appium.android.apis", ".accessibility.AccessibilityNodeProviderActivity",
+            _driver.StartActivity(AppId, ".accessibility.AccessibilityNodeProviderActivity",
                 "io.appium.android.apis", ".accessibility.AccessibilityNodeProviderActivity");
 
-            Assert.AreEqual(_driver.CurrentActivity, ".accessibility.AccessibilityNodeProviderActivity");
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(".accessibility.AccessibilityNodeProviderActivity"));
         }
 
         [Test]
         public void StartActivityInNewAppTestCase()
         {
-            _driver.StartActivity("io.appium.android.apis", ".ApiDemos");
+            _driver.StartActivity(AppId, ".ApiDemos");
 
-            Assert.AreEqual(_driver.CurrentActivity, ".ApiDemos");
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(".ApiDemos"));
 
-            _driver.StartActivity("com.android.contacts", ContactsActivity);
+            _driver.StartActivity("com.google.android.contacts", ContactsActivity);
 
-            Assert.AreEqual(_driver.CurrentActivity, ContactsActivity);
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(ContactsActivity));
             _driver.PressKeyCode(AndroidKeyCode.Back);
-            Assert.AreEqual(_driver.CurrentActivity, ".ApiDemos");
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(".ApiDemos"));
         }
 
         [Test]
         public void StartActivityInNewAppTestCaseWithoutClosingApp()
         {
-            _driver.StartActivity("io.appium.android.apis", ".accessibility.AccessibilityNodeProviderActivity");
+            _driver.StartActivity(AppId, ".accessibility.AccessibilityNodeProviderActivity");
 
-            Assert.AreEqual(_driver.CurrentActivity, ".accessibility.AccessibilityNodeProviderActivity");
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(".accessibility.AccessibilityNodeProviderActivity"));
 
-            _driver.StartActivity("com.android.contacts", ContactsActivity, "com.android.contacts",
+            _driver.StartActivity("com.google.android.contacts", ContactsActivity, "com.google.android.contacts",
                 ContactsActivity, false);
 
-            Assert.AreEqual(_driver.CurrentActivity, ContactsActivity);
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(ContactsActivity));
             _driver.PressKeyCode(AndroidKeyCode.Back);
-            Assert.AreEqual(_driver.CurrentActivity, ".accessibility.AccessibilityNodeProviderActivity");
+            Assert.That(_driver.CurrentActivity, Is.EqualTo(".accessibility.AccessibilityNodeProviderActivity"));
         }
 
         [OneTimeTearDown]

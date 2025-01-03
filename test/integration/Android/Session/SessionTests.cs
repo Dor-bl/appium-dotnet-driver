@@ -1,14 +1,14 @@
-﻿using Appium.Net.Integration.Tests.helpers;
+﻿using System.Collections.Generic;
+using Appium.Net.Integration.Tests.helpers;
 using NUnit.Framework;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 
-namespace Appium.Net.Integration.Tests.Android.Device.Keys
+namespace Appium.Net.Integration.Tests.Android.Session
 {
-    class HideKeyboardTestCase
+    class SessionTests
     {
-        private AndroidDriver _driver;
+        private AppiumDriver _driver;
 
         [OneTimeSetUp]
         public void BeforeAll()
@@ -16,6 +16,7 @@ namespace Appium.Net.Integration.Tests.Android.Device.Keys
             var capabilities = Env.ServerIsRemote()
                 ? Caps.GetAndroidUIAutomatorCaps(Apps.Get("androidApiDemos"))
                 : Caps.GetAndroidUIAutomatorCaps(Apps.Get("androidApiDemos"));
+            capabilities.AddAdditionalAppiumOption("desired", capabilities.ToCapabilities());
             var serverUri = Env.ServerIsRemote() ? AppiumServers.RemoteServerUri : AppiumServers.LocalServiceUri;
             _driver = new AndroidDriver(serverUri, capabilities, Env.InitTimeoutSec);
             _driver.Manage().Timeouts().ImplicitWait = Env.ImplicitTimeoutSec;
@@ -32,11 +33,17 @@ namespace Appium.Net.Integration.Tests.Android.Device.Keys
         }
 
         [Test]
-        public void HideKeyBoardTestCase()
+        public void GetSessionDetailTest()
         {
-            _driver.StartActivity("io.appium.android.apis", ".app.CustomTitle");
-            _driver.FindElement(By.Id("io.appium.android.apis:id/left_text_edit")).Clear();
-            _driver.HideKeyboard();
+            object deviceName = _driver.GetSessionDetail("deviceName");
+            Assert.That(deviceName, Is.Not.Null);
+        }
+
+        [Test]
+        public void GetDeviceDictionaryData()
+        {
+            var dictionary = (Dictionary<string, object>)_driver.SessionDetails["desired"];
+            Assert.That(dictionary, Is.Not.Empty);
         }
     }
 }

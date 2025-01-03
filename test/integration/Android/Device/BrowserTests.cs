@@ -4,7 +4,7 @@ using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 using System;
 
-namespace Appium.Net.Integration.Tests.Android.Device.App
+namespace Appium.Net.Integration.Tests.Android.Device
 {
     internal class BrowserTests
     {
@@ -16,6 +16,7 @@ namespace Appium.Net.Integration.Tests.Android.Device.App
         {
             _androidOptions = new AppiumOptions();
             _androidOptions.BrowserName = "Chrome";
+            _androidOptions.AutomationName = "UiAutomator2";
 
             _driver = new AndroidDriver(
                 Env.ServerIsLocal() ? AppiumServers.LocalServiceUri : AppiumServers.RemoteServerUri,
@@ -26,14 +27,14 @@ namespace Appium.Net.Integration.Tests.Android.Device.App
         [OneTimeTearDown]
         public void TearDown()
         {
-            _driver.Dispose();
+            _driver?.Dispose();
         }
 
         [Test]
         public void Browser()
         {
             _driver.Navigate().GoToUrl("https://github.com/appium");
-            Assert.IsNotEmpty(_driver.PageSource);
+            Assert.That(_driver.PageSource, Is.Not.Empty);
         }
     }
 }

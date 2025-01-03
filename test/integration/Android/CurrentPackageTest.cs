@@ -1,7 +1,8 @@
 ﻿using Appium.Net.Integration.Tests.helpers;
 using NUnit.Framework;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Android;
+using OpenQA.Selenium.Support.UI;
+using System;
 
 namespace Appium.Net.Integration.Tests.Android
 {
@@ -9,6 +10,9 @@ namespace Appium.Net.Integration.Tests.Android
     public class CurrentPackageTest
     {
         private AndroidDriver _driver;
+        private WebDriverWait _waitDriver;
+        private readonly TimeSpan _driverTimeOut = TimeSpan.FromSeconds(5);
+
         private const string DemoAppPackage = "io.appium.android.apis";
 
         [OneTimeSetUp]
@@ -19,24 +23,27 @@ namespace Appium.Net.Integration.Tests.Android
             var serverUri = Env.ServerIsRemote() ? AppiumServers.RemoteServerUri : AppiumServers.LocalServiceUri;
             _driver = new AndroidDriver(serverUri, capabilities, Env.InitTimeoutSec);
             _driver.Manage().Timeouts().ImplicitWait = Env.ImplicitTimeoutSec;
-            _driver.CloseApp();
+            _driver.TerminateApp(DemoAppPackage);
         }
 
         [SetUp]
         public void SetUp()
         {
-            _driver?.LaunchApp();
+            _driver?.ActivateApp(DemoAppPackage);
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void TearDowwn()
         {
-            _driver?.CloseApp();
+            _ = (_driver?.TerminateApp(DemoAppPackage));
+            _driver?.Quit();
         }
 
         [Test]
         public void ReturnsCorrectNameForCurrentApp()
         {
+            _waitDriver = new WebDriverWait(_driver, _driverTimeOut);
+            _waitDriver.Until(driver => _driver.CurrentPackage == DemoAppPackage);
             Assert.That(_driver.CurrentPackage, Is.EqualTo(DemoAppPackage));
         }
     }

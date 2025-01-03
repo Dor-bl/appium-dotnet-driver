@@ -4,9 +4,8 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using Appium.Net.Integration.Tests.Properties;
+using Appium.Net.Integration.Tests.Helpers;
 using NUnit.Framework;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Appium.Service;
@@ -18,17 +17,12 @@ namespace Appium.Net.Integration.Tests.ServerTests
     [TestFixture]
     public class AppiumLocalServerLaunchingTest
     {
-        private string _pathToCustomizedAppiumJs;
+        private string _pathToAppiumPackageIndex;
         private string _testIp;
 
         [OneTimeSetUp]
         public void BeforeAll()
         {
-            byte[] bytes = null;
-
-            var isWindows = Platform.CurrentPlatform.IsPlatformType(PlatformType.Windows);
-            var isMacOs = Platform.CurrentPlatform.IsPlatformType(PlatformType.Mac);
-            var isLinux = Platform.CurrentPlatform.IsPlatformType(PlatformType.Linux);
 
             IPHostEntry host;
             var hostName = Dns.GetHostName();
@@ -43,24 +37,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             }
             Console.WriteLine(_testIp);
 
-            if (isWindows)
-            {
-                bytes = Resources.PathToWindowsNode;
-                _pathToCustomizedAppiumJs = System.Text.Encoding.UTF8.GetString(bytes);
-                return;
-            }
-            if (isMacOs)
-            {
-                bytes = Resources.PathToMacOSNode;
-                _pathToCustomizedAppiumJs = System.Text.Encoding.UTF8.GetString(bytes);
-                return;
-            }
-            if (isLinux)
-            {
-                bytes = Resources.PathToLinuxNode;
-                _pathToCustomizedAppiumJs = System.Text.Encoding.UTF8.GetString(bytes);
-                return;
-            }
+            _pathToAppiumPackageIndex = new Paths().PathToAppiumPackageIndex;
         }
 
         [Test]
@@ -71,7 +48,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             try
             {
                 service.Start();
-                Assert.AreEqual(true, service.IsRunning);
+                Assert.That(service.IsRunning, Is.EqualTo(true));
             }
             finally
             {
@@ -85,19 +62,27 @@ namespace Appium.Net.Integration.Tests.ServerTests
             var service = AppiumLocalService.BuildDefaultService();
             var lines = new List<string>();
 
-            service.OutputDataReceived += (sender, e) => { lines.Add(e.Data); Console.Out.WriteLine(e.Data); };
+            ManualResetEvent dataReceivedEvent = new ManualResetEvent(false);
+
+            service.OutputDataReceived += (sender, e) =>
+            {
+                lines.Add(e.Data);
+                Console.Out.WriteLine(e.Data);
+                dataReceivedEvent.Set();
+            };
 
             try
             {
                 service.Start();
-                Assert.AreEqual(true, service.IsRunning);
+                Assert.That(service.IsRunning, Is.EqualTo(true));
+                dataReceivedEvent.WaitOne(TimeSpan.FromSeconds(10));
             }
             finally
             {
                 service.Dispose();
             }
 
-            Assert.IsNotEmpty(lines);
+            Assert.That(lines, Is.Not.Empty);
         }
 
         [Test]
@@ -106,11 +91,11 @@ namespace Appium.Net.Integration.Tests.ServerTests
             AppiumLocalService service = null;
             try
             {
-                var definedNode = _pathToCustomizedAppiumJs;
+                var definedNode = _pathToAppiumPackageIndex;
                 Environment.SetEnvironmentVariable(AppiumServiceConstants.AppiumBinaryPath, definedNode);
                 service = AppiumLocalService.BuildDefaultService();
                 service.Start();
-                Assert.AreEqual(true, service.IsRunning);
+                Assert.That(service.IsRunning, Is.EqualTo(true));
             }
             finally
             {
@@ -125,9 +110,9 @@ namespace Appium.Net.Integration.Tests.ServerTests
             AppiumLocalService service = null;
             try
             {
-                service = new AppiumServiceBuilder().WithAppiumJS(new FileInfo(_pathToCustomizedAppiumJs)).Build();
+                service = new AppiumServiceBuilder().WithAppiumJS(new FileInfo(_pathToAppiumPackageIndex)).Build();
                 service.Start();
-                Assert.AreEqual(true, service.IsRunning);
+                Assert.That(service.IsRunning, Is.EqualTo(true));
             }
             finally
             {
@@ -143,7 +128,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             {
                 service = new AppiumServiceBuilder().UsingAnyFreePort().Build();
                 service.Start();
-                Assert.AreEqual(true, service.IsRunning);
+                Assert.That(service.IsRunning, Is.EqualTo(true));
             }
             finally
             {
@@ -158,7 +143,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             try
             {
                 service.Start();
-                Assert.IsTrue(service.IsRunning);
+                Assert.That(service.IsRunning);
             }
             finally
             {
@@ -176,7 +161,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             {
                 service = new AppiumServiceBuilder().WithArguments(args).Build();
                 service.Start();
-                Assert.IsTrue(service.IsRunning);
+                Assert.That(service.IsRunning);
             }
             finally
             {
@@ -193,7 +178,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             {
                 service = new AppiumServiceBuilder().WithArguments(args).Build();
                 service.Start();
-                Assert.IsTrue(service.IsRunning);
+                Assert.That(service.IsRunning);
             }
             finally
             {
@@ -218,7 +203,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             {
                 service = new AppiumServiceBuilder().WithArguments(args).Build();
                 service.Start();
-                Assert.IsTrue(service.IsRunning);
+                Assert.That(service.IsRunning);
             }
             finally
             {
@@ -244,7 +229,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             {
                 service = new AppiumServiceBuilder().WithArguments(args).Build();
                 service.Start();
-                Assert.IsTrue(service.IsRunning);
+                Assert.That(service.IsRunning);
             }
             finally
             {
@@ -258,7 +243,7 @@ namespace Appium.Net.Integration.Tests.ServerTests
             var service = AppiumLocalService.BuildDefaultService();
             service.Start();
             service.Dispose();
-            Assert.IsTrue(!service.IsRunning);
+            Assert.That(!service.IsRunning);
         }
 
         [Test]
@@ -279,10 +264,13 @@ namespace Appium.Net.Integration.Tests.ServerTests
             service3.Dispose();
             Thread.Sleep(1000);
             service4.Dispose();
-            Assert.IsTrue(!service1.IsRunning);
-            Assert.IsTrue(!service2.IsRunning);
-            Assert.IsTrue(!service3.IsRunning);
-            Assert.IsTrue(!service4.IsRunning);
+            Assert.Multiple(() =>
+            {
+                Assert.That(!service1.IsRunning);
+                Assert.That(!service2.IsRunning);
+                Assert.That(!service3.IsRunning);
+                Assert.That(!service4.IsRunning);
+            });
         }
 
 
@@ -294,8 +282,11 @@ namespace Appium.Net.Integration.Tests.ServerTests
             try
             {
                 service.Start();
-                Assert.IsTrue(log.Exists);
-                Assert.IsTrue(log.Length > 0); //There should be Appium greeting messages
+                Assert.Multiple(() =>
+                {
+                    Assert.That(log.Exists, Is.True);
+                    Assert.That(log.Length, Is.GreaterThan(0)); //There should be Appium greeting messages
+                });
             }
             finally
             {

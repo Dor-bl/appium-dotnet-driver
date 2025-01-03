@@ -1,6 +1,5 @@
 ﻿using Appium.Net.Integration.Tests.helpers;
 using NUnit.Framework;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 
@@ -34,10 +33,10 @@ namespace Appium.Net.Integration.Tests.Android
         public void NetworkConnectionTest()
         {
             ((AndroidDriver) _driver).ConnectionType = ConnectionType.AirplaneMode;
-            Assert.AreEqual(ConnectionType.AirplaneMode, ((AndroidDriver) _driver).ConnectionType);
+            Assert.That(((AndroidDriver) _driver).ConnectionType, Is.EqualTo(ConnectionType.AirplaneMode));
 
             ((AndroidDriver) _driver).ConnectionType = ConnectionType.AllNetworkOn;
-            Assert.AreEqual(ConnectionType.AllNetworkOn, ((AndroidDriver) _driver).ConnectionType);
+            Assert.That(((AndroidDriver) _driver).ConnectionType, Is.EqualTo(ConnectionType.AllNetworkOn));
         }
     }
 }

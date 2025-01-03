@@ -1,13 +1,10 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using Appium.Net.Integration.Tests.helpers;
+﻿using Appium.Net.Integration.Tests.helpers;
 using NUnit.Framework;
-using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Appium.iOS;
+using System;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Appium.Net.Integration.Tests.IOS
 {
@@ -18,11 +15,11 @@ namespace Appium.Net.Integration.Tests.IOS
         private const string ClipboardTestString = "Hello Clipboard";
         private const string Base64RegexPattern = @"^[a-zA-Z0-9\+/]*={0,2}$";
 
-        [SetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
             var capabilities = Caps.GetIosCaps(Apps.Get("iosUICatalogApp"));
-            capabilities.AddAdditionalAppiumOption(MobileCapabilityType.FullReset, true);
+            capabilities.AddAdditionalAppiumOption(MobileCapabilityType.FullReset, false);
             var serverUri = Env.ServerIsRemote() ? AppiumServers.RemoteServerUri : AppiumServers.LocalServiceUri;
 
             _driver = new IOSDriver(serverUri, capabilities, Env.InitTimeoutSec);
@@ -48,7 +45,7 @@ namespace Appium.Net.Integration.Tests.IOS
         [Test]
         public void WhenSetClipboardContentTypeIsUrl_GetClipboardShouldReturnEncodedBase64String()
         {
-            const string urlString = "https://github.com/appium/appium-dotnet-driver";
+            const string urlString = "https://github.com/appium/dotnet-client";
             var base64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(urlString));
             _driver.SetClipboard(ClipboardContentType.Url, base64String);
 
@@ -59,7 +56,7 @@ namespace Appium.Net.Integration.Tests.IOS
         [Test]
         public void WhenSetClipboardUrl_GetClipboardUrlShouldReturnUrl()
         {
-            const string urlString = "https://github.com/appium/appium-dotnet-driver";
+            const string urlString = "https://github.com/appium/dotnet-client";
             _driver.SetClipboardUrl(urlString);
 
             Assert.That(() => _driver.GetClipboardUrl(), Does.Match(urlString));
@@ -74,16 +71,6 @@ namespace Appium.Net.Integration.Tests.IOS
 
             Assert.That(() => Regex.IsMatch(_driver.GetClipboard(ClipboardContentType.Image), Base64RegexPattern, RegexOptions.Multiline),
                 Is.True);
-        }
-
-        [Test]
-        public void WhenSetClipboardImage_GetClipboardImageShouldReturnImage()
-        {
-            var imageBytes = _driver.GetScreenshot().AsByteArray;
-            var testImage = Image.FromStream(new MemoryStream(imageBytes));
-
-            _driver.SetClipboardImage(testImage);
-            Assert.That(() => _driver.GetClipboardImage().Size, Is.EqualTo(testImage.Size));
         }
 
         [Test]
@@ -107,7 +94,7 @@ namespace Appium.Net.Integration.Tests.IOS
             Assert.That(() => _driver.GetClipboardText(), Is.Empty);
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
             if (_driver.IsLocked())

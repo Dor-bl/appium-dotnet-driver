@@ -75,7 +75,7 @@ namespace OpenQA.Selenium.Appium.Mac
         /// <summary>
         /// Initializes a new instance of the MacDriver class using the specified remote address and Appium options
         /// </summary>
-        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/wd/hub).</param>
+        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/).</param>
         /// <param name="AppiumOptions">An <see cref="AppiumOptions"/> object containing the Appium options.</param>
         public MacDriver(Uri remoteAddress, AppiumOptions AppiumOptions)
             : base(remoteAddress, SetPlatformToCapabilities(AppiumOptions, Platform))
@@ -95,7 +95,7 @@ namespace OpenQA.Selenium.Appium.Mac
         /// <summary>
         /// Initializes a new instance of the MacDriver class using the specified remote address, Appium options, and command timeout.
         /// </summary>
-        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/wd/hub).</param>
+        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/).</param>
         /// <param name="AppiumOptions">An <see cref="AppiumOptions"/> object containing the Appium options.</param>
         /// <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
         public MacDriver(Uri remoteAddress, AppiumOptions AppiumOptions, TimeSpan commandTimeout)
@@ -111,6 +111,52 @@ namespace OpenQA.Selenium.Appium.Mac
         /// <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
         public MacDriver(AppiumLocalService service, AppiumOptions AppiumOptions, TimeSpan commandTimeout)
             : base(service, SetPlatformToCapabilities(AppiumOptions, Platform), commandTimeout)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MacDriver class using the specified remote address, Appium options and AppiumClientConfig.
+        /// </summary>
+        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/wd/hub).</param>
+        /// <param name="driverOptions">An <see cref="DriverOptions"/> object containing the Appium options.</param>
+        /// <param name="clientConfig">An instance of <see cref="AppiumClientConfig"/></param>
+        public MacDriver(Uri remoteAddress, DriverOptions driverOptions, AppiumClientConfig clientConfig)
+            : base(remoteAddress, SetPlatformToCapabilities(driverOptions, Platform), clientConfig)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MacDriver class using the specified Appium local service, Appium options and AppiumClientConfig,
+        /// </summary>
+        /// <param name="service">the specified Appium local service</param>
+        /// <param name="driverOptions">An <see cref="ICapabilities"/> object containing the Appium options.</param>
+        /// <param name="clientConfig">An instance of <see cref="AppiumClientConfig"/></param>
+        public MacDriver(AppiumLocalService service, DriverOptions driverOptions, AppiumClientConfig clientConfig)
+            : base(service, SetPlatformToCapabilities(driverOptions, Platform), clientConfig)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MacDriver class using the specified remote address, Appium options, command timeout and AppiumClientConfig.
+        /// </summary>
+        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/).</param>
+        /// <param name="driverOptions">An <see cref="DriverOptions"/> object containing the Appium options.</param>
+        /// <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
+        /// <param name="clientConfig">An instance of <see cref="AppiumClientConfig"/></param>
+        public MacDriver(Uri remoteAddress, DriverOptions driverOptions, TimeSpan commandTimeout, AppiumClientConfig clientConfig)
+            : base(remoteAddress, SetPlatformToCapabilities(driverOptions, Platform), commandTimeout, clientConfig)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MacDriver class using the specified Appium local service, Appium options, command timeout and AppiumClientConfig,
+        /// </summary>
+        /// <param name="service">the specified Appium local service</param>
+        /// <param name="driverOptions">An <see cref="ICapabilities"/> object containing the Appium options.</param>
+        /// <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
+        /// <param name="clientConfig">An instance of <see cref="AppiumClientConfig"/></param>
+        public MacDriver(AppiumLocalService service, DriverOptions driverOptions, TimeSpan commandTimeout, AppiumClientConfig clientConfig)
+            : base(service, SetPlatformToCapabilities(driverOptions, Platform), commandTimeout, clientConfig)
         {
         }
     }

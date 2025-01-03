@@ -16,6 +16,17 @@ CI:
 Test:
   title: "^test:.*"
 
+Chore:
+  title: "^chore:.*"
+
+GitHub:
+  title: "^github:.*"
+
 WIP:
   title: "^WIP:.*"
   mergeable: false
+
+BreakingChange:
+  title: "^.*BREAKING CHANGE:.*|.*!.*"
+  mergeable: false
+  

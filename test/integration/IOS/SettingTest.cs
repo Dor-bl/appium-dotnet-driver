@@ -1,9 +1,8 @@
 ﻿using Appium.Net.Integration.Tests.helpers;
 using NUnit.Framework;
-using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.iOS;
 
-namespace Appium.Net.Integration.Tests.iOS
+namespace Appium.Net.Integration.Tests.IOS
 {
     public class SettingTest
     {
@@ -35,13 +34,13 @@ namespace Appium.Net.Integration.Tests.iOS
                 setting: "useJSONSource",
                 value: true);
 
-            Assert.IsTrue((bool)_driver.Settings["useJSONSource"]);
+            Assert.That((bool)_driver.Settings["useJSONSource"]);
 
             _driver.SetSetting(
                 setting: "useJSONSource",
                 value: false);
 
-            Assert.IsFalse((bool)_driver.Settings["useJSONSource"]);
+            Assert.That((bool)_driver.Settings["useJSONSource"], Is.False);
         }
     }
 }

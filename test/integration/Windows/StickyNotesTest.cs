@@ -43,6 +43,7 @@ namespace Appium.Net.Integration.Tests.Windows
                     AppiumOptions appCapabilities = new AppiumOptions();
                     appCapabilities.App = StickyNotesAppId;
                     appCapabilities.DeviceName = "WindowsPC";
+                    appCapabilities.AutomationName = "Windows";
                     session = new WindowsDriver(serverUri, appCapabilities);
                 }
                 catch
@@ -53,6 +54,7 @@ namespace Appium.Net.Integration.Tests.Windows
                     AppiumOptions desktopCapabilities = new AppiumOptions();
                     desktopCapabilities.App = "Root";
                     desktopCapabilities.DeviceName = "WindowsPC";
+                    desktopCapabilities.AutomationName = "Windows";
                     var desktopSession = new WindowsDriver(serverUri, desktopCapabilities);
 
                     var StickyNotesTopLevelWindow = desktopSession.FindElement(MobileBy.ClassName("Modern_Sticky_Top_Window"));
@@ -64,7 +66,7 @@ namespace Appium.Net.Integration.Tests.Windows
                     appCapabilities.DeviceName = "WindowsPC";
                     session = new WindowsDriver(serverUri, appCapabilities);
                 }
-                Assert.IsNotNull(session);
+                Assert.That(session, Is.Not.Null);
 
                 // Set implicit timeout to 1.5 seconds to make element search to retry every 500 ms for at most three times
                 session.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1.5);

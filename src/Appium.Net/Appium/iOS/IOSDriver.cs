@@ -80,8 +80,8 @@ namespace OpenQA.Selenium.Appium.iOS
         /// <summary>
         /// Initializes a new instance of the IOSDriver class using the specified remote address and Appium options
         /// </summary>
-        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/wd/hub).</param>
-        /// <param name="DriverOptions">An <see cref="DriverOptions"/> object containing the Appium options.</param>
+        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/).</param>
+        /// <param name="driverOptions">An <see cref="DriverOptions"/> object containing the Appium options.</param>
         public IOSDriver(Uri remoteAddress, DriverOptions driverOptions)
             : base(remoteAddress, SetPlatformToCapabilities(driverOptions, Platform))
         {
@@ -100,8 +100,8 @@ namespace OpenQA.Selenium.Appium.iOS
         /// <summary>
         /// Initializes a new instance of the IOSDriver class using the specified remote address, Appium options, and command timeout.
         /// </summary>
-        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/wd/hub).</param>
-        /// <param name="DriverOptions">An <see cref="DriverOptions"/> object containing the Appium options.</param>
+        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/).</param>
+        /// <param name="driverOptions">An <see cref="DriverOptions"/> object containing the Appium options.</param>
         /// <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
         public IOSDriver(Uri remoteAddress, DriverOptions driverOptions, TimeSpan commandTimeout)
             : base(remoteAddress, SetPlatformToCapabilities(driverOptions, Platform), commandTimeout)
@@ -116,6 +116,53 @@ namespace OpenQA.Selenium.Appium.iOS
         /// <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
         public IOSDriver(AppiumLocalService service, DriverOptions driverOptions, TimeSpan commandTimeout)
             : base(service, SetPlatformToCapabilities(driverOptions, Platform), commandTimeout)
+        {
+        }
+
+
+        /// <summary>
+        /// Initializes a new instance of the IOSDriver class using the specified remote address, Appium options and AppiumClientConfig.
+        /// </summary>
+        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/).</param>
+        /// <param name="driverOptions">An <see cref="DriverOptions"/> object containing the Appium options.</param>
+        /// <param name="clientConfig">An instance of <see cref="AppiumClientConfig"/></param>
+        public IOSDriver(Uri remoteAddress, DriverOptions driverOptions, AppiumClientConfig clientConfig)
+            : base(remoteAddress, SetPlatformToCapabilities(driverOptions, Platform), clientConfig)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IOSDriver class using the specified Appium local service, Appium options and AppiumClientConfig,
+        /// </summary>
+        /// <param name="service">the specified Appium local service</param>
+        /// <param name="driverOptions">An <see cref="ICapabilities"/> object containing the Appium options.</param>
+        /// <param name="clientConfig">An instance of <see cref="AppiumClientConfig"/></param>
+        public IOSDriver(AppiumLocalService service, DriverOptions driverOptions, AppiumClientConfig clientConfig)
+            : base(service, SetPlatformToCapabilities(driverOptions, Platform), clientConfig)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IOSDriver class using the specified remote address, Appium options, command timeout and AppiumClientConfig.
+        /// </summary>
+        /// <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4723/).</param>
+        /// <param name="driverOptions">An <see cref="DriverOptions"/> object containing the Appium options.</param>
+        /// <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
+        /// <param name="clientConfig">An instance of <see cref="AppiumClientConfig"/></param>
+        public IOSDriver(Uri remoteAddress, DriverOptions driverOptions, TimeSpan commandTimeout, AppiumClientConfig clientConfig)
+            : base(remoteAddress, SetPlatformToCapabilities(driverOptions, Platform), commandTimeout, clientConfig)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the IOSDriver class using the specified Appium local service, Appium options, command timeout and AppiumClientConfig,
+        /// </summary>
+        /// <param name="service">the specified Appium local service</param>
+        /// <param name="driverOptions">An <see cref="ICapabilities"/> object containing the Appium options.</param>
+        /// <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
+        /// <param name="clientConfig">An instance of <see cref="AppiumClientConfig"/></param>
+        public IOSDriver(AppiumLocalService service, DriverOptions driverOptions, TimeSpan commandTimeout, AppiumClientConfig clientConfig)
+            : base(service, SetPlatformToCapabilities(driverOptions, Platform), commandTimeout, clientConfig)
         {
         }
 
@@ -140,19 +187,35 @@ namespace OpenQA.Selenium.Appium.iOS
         public void HideKeyboard(string key, string strategy = null) =>
             AppiumCommandExecutionHelper.HideKeyboard(this, strategy, key);
 
-        /// <summary>
-        /// Locks the device.
-        /// </summary>
-        /// <param name="seconds">The number of seconds during which the device need to be locked for.</param>
-        public void Lock(int seconds) => AppiumCommandExecutionHelper.Lock(this, seconds);
-
         public void PerformTouchID(bool match) => IOSCommandExecutionHelper.PerformTouchID(this, match);
 
-        public bool IsLocked() => IOSCommandExecutionHelper.IsLocked(this);
+        /// <summary>
+        /// Check if the device is locked
+        /// </summary>
+        /// <returns>true if device is locked, false otherwise</returns>
+        public bool IsLocked() => (bool)ExecuteScript("mobile: isLocked");
 
-        public void Unlock() => IOSCommandExecutionHelper.Unlock(this);
+        /// <summary>
+        /// Locks the device. Optionally, unlocks it after a specified number of seconds.
+        /// </summary>
+        /// <param name="seconds">
+        /// The number of seconds after which the device will be automatically unlocked. 
+        /// Set to 0 or leave it empty to require manual unlock.
+        /// </param>
+        /// <exception cref="WebDriverException">Thrown if the command execution fails.</exception>
+        public void Lock(int? seconds = null)
+        {
+            var parameters = new Dictionary<string, object>();
 
-        public void Lock() => IOSCommandExecutionHelper.Lock(this);
+            if (seconds.HasValue && seconds.Value > 0)
+            {
+                parameters["seconds"] = seconds.Value;
+            }
+
+            ExecuteScript("mobile: lock", parameters);
+        }
+
+        public void Unlock() => ExecuteScript("mobile: unlock");
 
         /// <summary>
         /// Sets the content to the clipboard

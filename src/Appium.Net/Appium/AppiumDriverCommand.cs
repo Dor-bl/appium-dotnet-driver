@@ -24,21 +24,6 @@ namespace OpenQA.Selenium.Appium
         public const string ShakeDevice = "shakeDevice";
 
         /// <summary>
-        /// Represents the Lock Device Mapping command
-        /// </summary>
-        public const string LockDevice = "lockDevice";
-
-        /// <summary>
-        /// Represents the Unlock Device Mapping command
-        /// </summary>
-        public const string UnlockDevice = "unlockDevice";
-
-        /// <summary>
-        /// Represents the Is Device Locked Mapping command
-        /// </summary>
-        public const string IsLocked = "isLocked";
-
-        /// <summary>
         /// Toggle's the Airplane Mode ("Flight Safe Mode") Command
         /// </summary>
         public const string ToggleAirplaneMode = "toggleAirplaneMode";
@@ -77,11 +62,6 @@ namespace OpenQA.Selenium.Appium
         /// Long press key code
         /// </summary>
         public const string LongPressKeyCode = "longPressKeyCode";
-
-        /// <summary>
-        /// Rotate Command.
-        /// </summary>
-        public const string Rotate = "rotate";
 
         /// <summary>
         /// Get CurrentActivity Command.
@@ -142,21 +122,6 @@ namespace OpenQA.Selenium.Appium
         /// Toggle Location Services Command.
         /// </summary>
         public const string ToggleLocationServices = "toggleLocationServices";
-
-        /// <summary>
-        /// Launch App Command.
-        /// </summary>
-        public const string LaunchApp = "launchApp";
-
-        /// <summary>
-        /// Close App Command.
-        /// </summary>
-        public const string CloseApp = "closeApp";
-
-        /// <summary>
-        /// Reset App Command.
-        /// </summary>
-        public const string ResetApp = "resetApp";
 
         /// <summary>
         ///  Background App Command.
@@ -232,22 +197,6 @@ namespace OpenQA.Selenium.Appium
         public static string GetPerformanceDataTypes = "getSuppportedPerformanceDataTypes";
 
         #endregion Appium Specific extensions to JSONWP Commands
-
-        #region (Deprecated) TouchActions
-        // TODO: Remove this region once we deprecate the touch actions
-        // Please use the W3C Actions instead.
-
-        /// <summary>
-        /// Perform touch action
-        /// </summary>
-        public const string PerformTouchAction = "performTouchAction";
-
-        /// <summary>
-        /// Perform multi touch action
-        /// </summary>
-        public const string PerformMultiAction = "performMultiTouch";
-
-        #endregion (Deprecated) MultiTouchActions
 
         #region W3C Actions
 
@@ -348,11 +297,6 @@ namespace OpenQA.Selenium.Appium
         /// Represents the fingerPrint command
         /// </summary>
         public const string FingerPrint = "fingerPrint";
-
-
-        public const string ReplaceValue = "replaceValue";
-
-        public const string SetValue = "setValue";
 
         public const string GetDeviceTime = "getDeviceTime";
 

@@ -31,9 +31,14 @@ namespace OpenQA.Selenium.Appium
         IHasSessionDetails,
         IHasLocation,
         IHidesKeyboard, IInteractsWithFiles, IFindsByFluentSelector<AppiumElement>,
-        IInteractsWithApps, IPerformsTouchActions, IRotatable, IContextAware
+        IInteractsWithApps, IRotatable, IContextAware
     {
         private const string NativeApp = "NATIVE_APP";
+
+        /// <summary>
+        /// The default command timeout for HTTP requests in a AppiumDriver instance.
+        /// </summary>
+        protected static new readonly TimeSpan DefaultCommandTimeout = TimeSpan.FromSeconds(600.0);
 
         #region Constructors
 
@@ -75,14 +80,36 @@ namespace OpenQA.Selenium.Appium
         }
 
         public AppiumDriver(Uri remoteAddress, ICapabilities appiumOptions, TimeSpan commandTimeout)
-            : this(new AppiumCommandExecutor(remoteAddress, commandTimeout), appiumOptions)
+            : this(remoteAddress, appiumOptions, commandTimeout, AppiumClientConfig.DefaultConfig())
         {
         }
 
         public AppiumDriver(AppiumLocalService service, ICapabilities appiumOptions, TimeSpan commandTimeout)
-            : this(new AppiumCommandExecutor(service, commandTimeout), appiumOptions)
+            : this(service, appiumOptions, commandTimeout, AppiumClientConfig.DefaultConfig())
         {
         }
+
+
+        public AppiumDriver(Uri remoteAddress, ICapabilities appiumOptions, AppiumClientConfig clientConfig)
+            : this(new AppiumCommandExecutor(remoteAddress, DefaultCommandTimeout, clientConfig), appiumOptions)
+        {
+        }
+
+        public AppiumDriver(AppiumLocalService service, ICapabilities appiumOptions, AppiumClientConfig clientConfig)
+            : this(new AppiumCommandExecutor(service, DefaultCommandTimeout, clientConfig), appiumOptions)
+        {
+        }
+
+        public AppiumDriver(Uri remoteAddress, ICapabilities appiumOptions, TimeSpan commandTimeout, AppiumClientConfig clientConfig)
+            : this(new AppiumCommandExecutor(remoteAddress, commandTimeout, clientConfig), appiumOptions)
+        {
+        }
+
+        public AppiumDriver(AppiumLocalService service, ICapabilities appiumOptions, TimeSpan commandTimeout, AppiumClientConfig clientConfig)
+            : this(new AppiumCommandExecutor(service, commandTimeout, clientConfig), appiumOptions)
+        {
+        }
+
 
         #endregion Constructors
 
@@ -113,24 +140,6 @@ namespace OpenQA.Selenium.Appium
 
         #region MJsonMethod Members
 
-        /// <summary>
-        /// Rotates Device.
-        /// </summary>
-        /// <param name="opts">rotations options like the following:
-        /// new Dictionary<string, int> {{"x", 114}, {"y", 198}, {"duration", 5}, 
-        /// {"radius", 3}, {"rotation", 220}, {"touchCount", 2}}
-        /// </param>
-        public void Rotate(Dictionary<string, int> opts)
-        {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-            foreach (KeyValuePair<string, int> opt in opts)
-            {
-                parameters.Add(opt.Key, opt.Value);
-            }
-
-            Execute(AppiumDriverCommand.Rotate, parameters);
-        }
-
         public void InstallApp(string appPath) =>
             Execute(AppiumDriverCommand.InstallApp, AppiumCommandExecutionHelper.PrepareArgument("appPath", appPath));
 
@@ -139,6 +148,12 @@ namespace OpenQA.Selenium.Appium
 
         public void ActivateApp(string appId) =>
             Execute(AppiumDriverCommand.ActivateApp, AppiumCommandExecutionHelper.PrepareArgument("appId", appId));
+        
+        public void ActivateApp(string appId, TimeSpan timeout) =>
+            Execute(AppiumDriverCommand.ActivateApp,
+                    AppiumCommandExecutionHelper.PrepareArguments(new string[] {"appId", "options"},
+                        new object[]
+                            {appId, new Dictionary<string, object>() {{"timeout", (long) timeout.TotalMilliseconds}}}));
 
         public bool TerminateApp(string appId) =>
             Convert.ToBoolean(Execute(AppiumDriverCommand.TerminateApp,
@@ -171,12 +186,6 @@ namespace OpenQA.Selenium.Appium
 
         public void PushFile(string pathOnDevice, FileInfo file) =>
             AppiumCommandExecutionHelper.PushFile(this, pathOnDevice, file);
-
-        public void LaunchApp() => ((IExecuteMethod)this).Execute(AppiumDriverCommand.LaunchApp);
-
-        public void CloseApp() => ((IExecuteMethod)this).Execute(AppiumDriverCommand.CloseApp);
-
-        public void ResetApp() => ((IExecuteMethod)this).Execute(AppiumDriverCommand.ResetApp);
 
         public void FingerPrint(int fingerprintId) =>
             AppiumCommandExecutionHelper.FingerPrint(this, fingerprintId);
@@ -376,26 +385,6 @@ namespace OpenQA.Selenium.Appium
             ((IExecuteMethod)this).Execute(AppiumDriverCommand.DeactivateEngine);
 
         #endregion Input Method (IME)
-
-        #region (Deprecated) Multi Actions
-        // TODO: Remove this region once we deprecate the touch actions
-        // Please use the W3C Actions instead.
-        [Obsolete("Touch Actions are deprecated in W3C spec, please use W3C actions instead")]
-        public void PerformMultiAction(IMultiAction multiAction)
-        {
-            if (multiAction == null) return;
-            var parameters = multiAction.GetParameters();
-            Execute(AppiumDriverCommand.PerformMultiAction, parameters);
-        }
-        [Obsolete("Touch Actions are deprecated in W3C spec, please use W3C actions instead")]
-        public void PerformTouchAction(ITouchAction touchAction)
-        {
-            if (touchAction == null) return;
-            var parameters = AppiumCommandExecutionHelper.PrepareArgument("actions", touchAction.GetParameters());
-            Execute(AppiumDriverCommand.PerformTouchAction, parameters);
-        }
-
-        #endregion (Deprecated) Multi Actions
 
         #region W3C Actions
 

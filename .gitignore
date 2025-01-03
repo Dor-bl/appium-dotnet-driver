@@ -17,3 +17,5 @@ packages
 env.json
 .vscode/
 *.user
+*.log
+*.DS_Store
